@@ -1,10 +1,10 @@
 import React from "react";
 import { shallow } from "enzyme";
 
-import Review from "../client/src/components/app.jsx";
-import Stats from "../client/src/components/stats.jsx";
-import ReviewList from "../client/src/components/reviewList.jsx";
-import ReviewItem from "../client/src/components/reviewItem.jsx";
+import Review from "../src/components/app.jsx";
+import Stats from "../src/components/stats.jsx";
+import ReviewList from "../src/components/reviewList.jsx";
+import ReviewItem from "../src/components/reviewItem.jsx";
 
 describe("Review", () => {
   test("renders review list", () => {

@@ -4,7 +4,7 @@
 ## NPM ##
 npm
 npm-debug.log
-node_modules/
+../node_modules/
 
 pids
 *.pid
@@ -25,4 +25,4 @@ build/
 client/dist/bundle.js
 
 
-spec/__snapshots__
+client/spec/__snapshots__
