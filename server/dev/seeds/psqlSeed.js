@@ -40,11 +40,12 @@ const prepareDatabase = async (dbName) => {
   await db.none('DROP TABLE IF EXISTS $1:name', ['reviews']);
   await db.none(`
   CREATE TABLE reviews (
-      author varchar,
-      body varchar,
-      item int,
-      rating int,
-      likes int
+      id SERIAL UNIQUE,
+      author VARCHAR,
+      body VARCHAR,
+      item INT,
+      rating INT,
+      likes INT
       );`);
 
   return db;
@@ -144,7 +145,7 @@ const seedPostgres = async (dbName, amount) => {
     .then((data) => {
       // Notify the user of total batches and insertion time
       console.log(
-        `\nTotal batches:${data.total}, Duration:${data.duration} ms`
+        `\nTotal batches: ${data.total}, Duration: ${data.duration} ms`
       );
     })
     .catch((error) => {

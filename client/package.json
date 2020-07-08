@@ -2,11 +2,11 @@
   "name": "front-end-capstone",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.jsx",
   "scripts": {
     "test": "../node_modules/.bin/jest",
-    "build-dev": "../node_modules/.bin/webpack -d --mode development --watch",
-    "build-prod": "../node_modules/.bin/webpack -p --mode production"
+    "build-dev": "./node_modules/.bin/webpack -d --mode development --watch",
+    "build-prod": "./node_modules/.bin/webpack -p --mode production"
   },
   "repository": {
     "type": "git",

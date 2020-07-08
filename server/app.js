@@ -24,8 +24,11 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use('/', reviewRouter);
 
 // Serve up the dist folder from the client
-app.use(express.static(path.resolve(__dirname, '../../client/dist')));
+app.use(express.static(path.resolve(__dirname, '../client/dist')));
 
+app.get('/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 // ROUTE HANDLER FOR NON-EXISTENT ROUTES
 app.all('*', (req, res, next) => {
   next(new Error(`Can't find ${req.originalUrl} on this server!`));
