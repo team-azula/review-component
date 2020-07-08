@@ -1,7 +1,8 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console,no-plusplus,no-unused-expressions */
 /* Import Modules */
 const chalkPipe = require('chalk-pipe');
 const ProgressBar = require('progress');
+const random = require('random');
 
 /* Import PG Promise for use in massive data insertion */
 const pgp = require('pg-promise')({
@@ -72,9 +73,15 @@ function getNextData(t, currentChunk, chunkSize, chunks) {
 
     // Generate data for each chunk and push it to the array
     for (let i = 1; i <= chunkSize; i++) {
-      reviews.push(generateReview());
-    }
+      // Get max number of reviews for the app
+      const numberOfReviews = random.int(1, 8);
 
+      for (let j = 1; j <= numberOfReviews; j++) {
+        j === numberOfReviews
+          ? reviews.push(generateReview(true))
+          : reviews.push(generateReview(false));
+      }
+    }
     // Resolve this promise with the generated data
     resolve(reviews);
   });

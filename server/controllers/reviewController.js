@@ -7,6 +7,7 @@ const catchAsync = require('../utils/catchAsync');
  */
 module.exports.getAllReviews = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'getAllReviews works!' });
 });
 
 /**
@@ -16,6 +17,7 @@ module.exports.getAllReviews = catchAsync(async (req, res) => {
 
 module.exports.createNewReview = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'createNewReview works!' });
 });
 /**
  * Get One Review
@@ -23,6 +25,7 @@ module.exports.createNewReview = catchAsync(async (req, res) => {
  */
 module.exports.getOneReview = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'getOneReview works!' });
 });
 
 /**
@@ -31,6 +34,7 @@ module.exports.getOneReview = catchAsync(async (req, res) => {
  */
 module.exports.updateOneReview = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'updateOneReview works!' });
 });
 
 /**
@@ -39,6 +43,7 @@ module.exports.updateOneReview = catchAsync(async (req, res) => {
  */
 module.exports.deleteOneReview = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'deleteOneReview works!' });
 });
 
 /**
@@ -47,6 +52,7 @@ module.exports.deleteOneReview = catchAsync(async (req, res) => {
  */
 module.exports.getAllLikes = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'getAllLikes works!' });
 });
 
 /**
@@ -55,6 +61,7 @@ module.exports.getAllLikes = catchAsync(async (req, res) => {
  */
 module.exports.createOneLike = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'createOneLike works!' });
 });
 
 /**
@@ -63,4 +70,5 @@ module.exports.createOneLike = catchAsync(async (req, res) => {
  */
 module.exports.deleteOneLike = catchAsync(async (req, res) => {
   // TODO
+  res.status(200).json({ message: 'deleteOneLike works!' });
 });

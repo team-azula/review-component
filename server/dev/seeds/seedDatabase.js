@@ -12,7 +12,6 @@ const seedCassandra = require('./csqlSeed');
 const CQL_IDENTIFIER = 'CQL';
 const PSQL_IDENTIFIER = 'PSQL';
 
-console.log(process.env.DATABASE_NAME);
 let dbName = process.env.DATABASE_NAME;
 let seedAmount = 100;
 let dbms = null;

@@ -12,6 +12,7 @@ const app = require('./app');
 
 let server;
 
+/* Connect to the database */
 db.connectToPostgreSQL()
   .then(() => {
     server = app.listen(process.env.PORT, () => {

@@ -4,8 +4,6 @@ const chalk = require('chalk');
 const util = require('util');
 const generateReview = require('./generator');
 
-const generateReviewPromise = util.promisify(generateReview);
-
 /**
  * Seed Cassandra Database
  * @param amount {number}

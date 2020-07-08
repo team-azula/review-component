@@ -7,7 +7,7 @@ const client = new Client();
 
 /**
  * Connect to the PostgreSQL database
- * @returns {Promise<void>}
+ * @returns {Promise<Client>}
  */
 module.exports.connectToPostgreSQL = async () => {
   await client.connect();
