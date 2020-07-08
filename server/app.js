@@ -30,8 +30,10 @@ app.get('/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 // ROUTE HANDLER FOR NON-EXISTENT ROUTES
-app.all('*', (req, res, next) => {
-  next(new Error(`Can't find ${req.originalUrl} on this server!`));
+app.all('*', (req, res) => {
+  res
+    .status(404)
+    .json({ message: `Can't find ${req.originalUrl} on this server!` });
 });
 
 // Export the App module
