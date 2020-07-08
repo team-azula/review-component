@@ -1,49 +1,27 @@
-const express = require('express');
+/* Import Modules */
 const path = require('path');
-const db = require('../database/index.js');
-const Review = require('../database/Review.js');
-const bodyParser = require('body-parser');
+/* Set up the environment variables */
+require('dotenv').config({ path: path.resolve(__dirname, './config/.env') });
 
-const app = express();
-const port = 3002;
+/* Import Debug module */
+const serverDebug = require('debug')('server:startup');
+const db = require('./database/PostgreSQL');
 
-app.use(express.static(__dirname + '/../client/dist'));
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+/* Require the express app into our server instance */
+const app = require('./app');
 
-app.get('/reviews/:appid', (req, res) => {
-  const appId = req.params.appid;
-  Review.find({ item: appId }, (err, reviews) => {
-    if (err) {
-      return console.log(err);
-    }
-    res.json(reviews);
-  });
-});
+let server;
 
-app.post('/reviews', (req, res) => {
-  const review = req.body;
-  Review.create(review, (err, response) => {
-    if (err) {
-      return console.log(err);
-    }
-    res.json('sent');
-  });
-});
-
-app.post('/likes/:reviewId', (req, res) => {
-  Review.findById(req.params.reviewId, (err, review) => {
-    Review.updateOne({ _id: review._id}, { likes: review.likes + 1 }, (err, whatever) => {
-      res.end();
+/* Connect to the database */
+db.connectToPostgreSQL()
+  .then(() => {
+    server = app.listen(process.env.PORT, () => {
+      serverDebug(`Server running on port: ${process.env.PORT}`);
     });
+  })
+  .catch((error) => {
+    serverDebug(error);
   });
-});
 
-const server = app.listen(port, () => console.log(`Review component running on port ${port}!`));
-
+// Export the server module
 module.exports = server;
