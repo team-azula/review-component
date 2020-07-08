@@ -12,4 +12,5 @@ const client = new Client();
 module.exports.connectToPostgreSQL = async () => {
   await client.connect();
   dbDebug(`Postgres running on port ${process.env.PGPORT} `);
+  return client;
 };

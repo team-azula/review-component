@@ -8,13 +8,13 @@
  * @returns {{item: number, author: string, rating: number, body: string, likes: number}}
  * @constructor
  */
-const Review = (author, body, item, rating, likes) => ({
+const createReview = (item, author, body, rating, likes) => ({
+  item,
   author,
   body,
-  item,
   rating,
   likes,
 });
 
 /* Export this module */
-module.exports = Review;
+module.exports = createReview;
