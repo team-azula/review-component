@@ -2,16 +2,13 @@
 /* Import Modules */
 const chalkPipe = require('chalk-pipe');
 const ProgressBar = require('progress');
-const random = require('random');
 const { Spinner } = require('cli-spinner');
-
 /* Import PG Promise for use in massive data insertion */
 const pgp = require('pg-promise')({
   capSQL: true, // generate capitalized SQL
 });
 
-/* Import the review generator */
-const generateReview = require('./generator');
+const getNextData = require('./getNextData');
 
 /**
  * Prepare Database
@@ -51,43 +48,6 @@ const prepareDatabase = async (dbName) => {
 
   return db;
 };
-
-/**
- * Get Next Data
- * @param t - The current database transaction
- * @param currentChunk {number} - The current page of data being processed
- * @param chunkSize {number} - The total chunkSize of each chunk
- * @param chunks {number} - The total number of chunks to be processed
- * @returns {Promise<Array<>>} - Array of data to be inserted into the database
- */
-function getNextData(t, currentChunk, chunkSize, chunks) {
-  return new Promise((resolve) => {
-    /* If the current chunk number is greater than (or equal to) the total number of chunks, resolve to null to stop
-     seeding */
-    if (currentChunk >= chunks) {
-      resolve(null);
-    }
-
-    /* Create an array to hold the new generated data
-     Save out array data one chunk at a time so
-     massive arrays do not overflow the memory */
-    const reviews = [];
-
-    // Generate data for each chunk and push it to the array
-    for (let i = 1; i <= chunkSize; i++) {
-      // Get max number of reviews for the app
-      const numberOfReviews = random.int(1, 8);
-
-      for (let j = 1; j <= numberOfReviews; j++) {
-        j === numberOfReviews
-          ? reviews.push(generateReview(true))
-          : reviews.push(generateReview(false));
-      }
-    }
-    // Resolve this promise with the generated data
-    resolve(reviews);
-  });
-}
 
 /**
  * Seed Postgres
@@ -140,7 +100,7 @@ const seedPostgres = async (dbName, amount) => {
       }
     };
     return t.sequence((index) =>
-      getNextData(t, index, chunkSize, chunks).then(processData)
+      getNextData(t, index, chunkSize, chunks, null).then(processData)
     );
   })
     .then((data) => {
@@ -153,7 +113,6 @@ const seedPostgres = async (dbName, amount) => {
       console.log(error);
     })
     .finally(async () => {
-      // Complete! - End the connection
       const start = new Date().getTime();
       const spinner = new Spinner('Indexing item column... %s  ');
       spinner.setSpinnerString('|/-\\');
@@ -172,6 +131,7 @@ const seedPostgres = async (dbName, amount) => {
       const end = new Date().getTime();
       const time = end - start;
 
+      // Complete! - End the connection
       console.log(`\nTotal time to index: ${time} ms`);
       console.log('Closing connection... ');
       db.$pool.end();

@@ -8,7 +8,7 @@
  * @returns {{item: number, author: string, rating: number, body: string, likes: number}}
  * @constructor
  */
-const createReview = (item, author, body, rating, likes) => ({
+module.exports.createReview = (item, author, body, rating, likes) => ({
   item,
   author,
   body,
@@ -16,5 +16,10 @@ const createReview = (item, author, body, rating, likes) => ({
   likes,
 });
 
-/* Export this module */
-module.exports = createReview;
+module.exports.createReviewAsArray = (item, author, body, rating, likes) => [
+  item,
+  author,
+  body,
+  rating,
+  likes,
+];

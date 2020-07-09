@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "DEBUG=server:startup,database:startup nodemon",
+    "dev": "CORE_DB=PSQL DEBUG=server:startup,database:startup nodemon",
+    "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
     "seed:psql": "DEBUG=database:startup node ./dev/seeds/seedDatabase.js -p",
     "seed:cql": "DEBUG=database:startup node ./dev/seeds/seedDatabase.js -c"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cassandra-driver": "^4.5.2",
     "chalk": "^4.1.0",
     "chalk-pipe": "^4.0.0",
     "cli-spinner": "^0.2.10",
@@ -32,6 +34,7 @@
     "pg-promise": "^10.5.8",
     "progress": "^2.0.3",
     "random": "^2.2.0",
+    "short-uuid": "^3.1.1",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
