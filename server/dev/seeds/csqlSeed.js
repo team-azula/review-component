@@ -1,5 +1,6 @@
 const chalkPipe = require('chalk-pipe');
 const ProgressBar = require('progress');
+const { Spinner } = require('cli-spinner');
 const database = require('../../database/Cassandra');
 const getNextData = require('./getNextData');
 /**
@@ -70,6 +71,26 @@ const seedCassandra = async (dbName, amount) => {
     const time = end - start;
 
     console.log(`\nTotal batches: ${chunks}, Duration: ${time} ms`);
+
+    const indexStart = new Date().getTime();
+    const spinner = new Spinner('Indexing item column... %s  ');
+    spinner.setSpinnerString('|/-\\');
+    spinner.start();
+
+    await client.exec('CREATE INDEX idx_app_id ON reviews(item)');
+
+    spinner.setSpinnerTitle('Indexing author column... %s  ');
+    await client.exec('CREATE INDEX idx_author_id ON reviews(author)');
+
+    spinner.setSpinnerTitle('Indexing review column... %s  ');
+    await client.exec('CREATE INDEX idx_item_id ON reviews(id)');
+
+    spinner.stop();
+
+    const indexEnd = new Date().getTime();
+    const indexTime = indexEnd - indexStart;
+
+    console.log(`\nTotal time to index: ${indexTime} ms`);
     console.log('Closing connection... ');
   } catch (e) {
     console.log(e);
