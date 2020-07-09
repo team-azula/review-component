@@ -17,5 +17,7 @@
     "url": "https://github.com/team-azula/review-component/issues"
   },
   "homepage": "https://github.com/team-azula/review-component#readme",
-  "dependencies": {}
+  "dependencies": {
+    "uuid": "^8.2.0"
+  }
 }
