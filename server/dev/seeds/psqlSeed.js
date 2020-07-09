@@ -3,6 +3,7 @@
 const chalkPipe = require('chalk-pipe');
 const ProgressBar = require('progress');
 const random = require('random');
+const { Spinner } = require('cli-spinner');
 
 /* Import PG Promise for use in massive data insertion */
 const pgp = require('pg-promise')({
@@ -153,7 +154,27 @@ const seedPostgres = async (dbName, amount) => {
     })
     .finally(async () => {
       // Complete! - End the connection
-      await pgp.end();
+      const start = new Date().getTime();
+      const spinner = new Spinner('Indexing item column... %s  ');
+      spinner.setSpinnerString('|/-\\');
+      spinner.start();
+
+      await db.none('CREATE INDEX idx_app_id ON reviews(item)');
+
+      spinner.setSpinnerTitle('Indexing author column... %s  ');
+      await db.none('CREATE INDEX idx_author_id ON reviews(author)');
+
+      spinner.setSpinnerTitle('Indexing review column... %s  ');
+      await db.none('CREATE INDEX idx_item_id ON reviews(id)');
+
+      spinner.stop();
+
+      const end = new Date().getTime();
+      const time = end - start;
+
+      console.log(`\nTotal time to index: ${time} ms`);
+      console.log('Closing connection... ');
+      db.$pool.end();
     });
 };
 

@@ -29,6 +29,7 @@ app.use(express.static(path.resolve(__dirname, '../client/dist')));
 app.get('/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
+
 // ROUTE HANDLER FOR NON-EXISTENT ROUTES
 app.all('*', (req, res) => {
   res
