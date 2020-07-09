@@ -7,6 +7,14 @@
  */
 module.exports = (fn) => {
   return (req, res, next) => {
-    fn(req, res, next).catch(next);
+    fn(req, res, next).catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        return res.status(500).json({
+          message: error.message,
+          stack: error.stack,
+        });
+      }
+      return res.status(500).json({ message: 'Something went wrong!' });
+    });
   };
 };

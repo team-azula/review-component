@@ -1,19 +1,20 @@
 /* Import Modules */
 const express = require('express');
 const reviewController = require('../controllers/reviewController');
-
 /* Set up the router */
 const router = express.Router();
 
-/* API Route: /reviews */
-router
-  .route('/reviews')
-  .get(reviewController.getAllReviews)
-  .post(reviewController.createNewReview);
+router.post('/reviews', reviewController.createOneReview);
 
 /* API Route: /reviews/:appId */
 router
-  .route('/reviews/:appId')
+  .route('/reviews/:searchParam')
+  .get(reviewController.getAllReviews)
+  .delete(reviewController.deleteAllReviews);
+
+/* API Route: /reviews/:appId/:reviewId */
+router
+  .route('/reviews/:searchParam/:reviewId')
   .get(reviewController.getOneReview)
   .put(reviewController.updateOneReview)
   .patch(reviewController.updateOneReview)

@@ -3,6 +3,7 @@
 const chalkPipe = require('chalk-pipe');
 const ProgressBar = require('progress');
 const random = require('random');
+const { Spinner } = require('cli-spinner');
 
 /* Import PG Promise for use in massive data insertion */
 const pgp = require('pg-promise')({
@@ -40,11 +41,12 @@ const prepareDatabase = async (dbName) => {
   await db.none('DROP TABLE IF EXISTS $1:name', ['reviews']);
   await db.none(`
   CREATE TABLE reviews (
-      author varchar,
-      body varchar,
-      item int,
-      rating int,
-      likes int
+      id SERIAL UNIQUE,
+      author VARCHAR,
+      body VARCHAR,
+      item INT,
+      rating INT,
+      likes INT
       );`);
 
   return db;
@@ -144,7 +146,7 @@ const seedPostgres = async (dbName, amount) => {
     .then((data) => {
       // Notify the user of total batches and insertion time
       console.log(
-        `\nTotal batches:${data.total}, Duration:${data.duration} ms`
+        `\nTotal batches: ${data.total}, Duration: ${data.duration} ms`
       );
     })
     .catch((error) => {
@@ -152,7 +154,27 @@ const seedPostgres = async (dbName, amount) => {
     })
     .finally(async () => {
       // Complete! - End the connection
-      await pgp.end();
+      const start = new Date().getTime();
+      const spinner = new Spinner('Indexing item column... %s  ');
+      spinner.setSpinnerString('|/-\\');
+      spinner.start();
+
+      await db.none('CREATE INDEX idx_app_id ON reviews(item)');
+
+      spinner.setSpinnerTitle('Indexing author column... %s  ');
+      await db.none('CREATE INDEX idx_author_id ON reviews(author)');
+
+      spinner.setSpinnerTitle('Indexing review column... %s  ');
+      await db.none('CREATE INDEX idx_item_id ON reviews(id)');
+
+      spinner.stop();
+
+      const end = new Date().getTime();
+      const time = end - start;
+
+      console.log(`\nTotal time to index: ${time} ms`);
+      console.log('Closing connection... ');
+      db.$pool.end();
     });
 };
 
