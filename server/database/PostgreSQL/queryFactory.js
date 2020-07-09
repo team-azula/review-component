@@ -1,42 +1,78 @@
 /* Import Modules */
 const { client } = require('./index');
 
+const queryTypes = {
+  SELECT: 'SELECT',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+};
+
 /**
  * Select Dynamically
+ * @param queryType {{}}
  * @param rootParam {string} - The root param to use in SELECT statements
- * @param supplementParam {string | null} - The supplemental param to use in SELECT statements
- * @param columnOverride {string | null | undefined} - Override the name of the column to be retrieved from
- * @returns {{values: [number], name: string, text: string}}
+ * @param [supplementParam] {string} - The supplemental param to use in SELECT statements
+ * @param [columnOverride] {string} - Override the name of the column to be retrieved from
+ * @param [newData] {string} - Data to be used in update queries
+ * @param [cacheSuffix] {string} - Suffix to append to the end of the prepared query name
+ * @param [returnDataAfterUpdate] - Return data back from the query after update queries
+ * @returns {{name: string, text: string}}
  */
-const selectDynamically = (rootParam, supplementParam, columnOverride) => {
+const buildQuery = (
+  queryType,
+  rootParam,
+  supplementParam,
+  columnOverride,
+  newData,
+  cacheSuffix,
+  returnDataAfterUpdate
+) => {
   let column;
   let queryName;
 
   if (columnOverride) {
-    queryName = 'fetch-likes-by-item';
+    queryName = `${queryType}-likes-by-item`;
     column = columnOverride;
   } else if (Number(rootParam)) {
-    queryName = 'fetch-reviews-by-item';
+    queryName = `${queryType}-reviews-by-item`;
     column = 'item';
-    rootParam = parseInt(rootParam, 10);
   } else {
-    queryName = 'fetch-reviews-by-author';
+    queryName = `${queryType}-reviews-by-author`;
     column = 'author';
   }
 
-  const queryVals = [rootParam];
-  let queryString = `SELECT * FROM reviews WHERE ${column} = $1`;
+  let queryString;
+
+  switch (queryType) {
+    case queryTypes.SELECT:
+      queryString = `SELECT * FROM reviews WHERE ${column} = '${rootParam}'`;
+      break;
+    case queryTypes.UPDATE:
+      queryString = `UPDATE reviews SET ${newData} WHERE ${column} = '${rootParam}'`;
+      break;
+    case queryTypes.DELETE:
+      queryString = `DELETE FROM reviews WHERE ${column} = '${rootParam}'`;
+      break;
+    default:
+      return { name: 'empty-query', text: '' };
+  }
 
   if (supplementParam) {
     queryName += '-and-id';
-    queryString += ' AND id = $2';
-    queryVals.push(supplementParam);
+    queryString += ` AND id = ${supplementParam}`;
+  }
+
+  if (returnDataAfterUpdate) {
+    queryString += ' RETURNING id, author, body, item, rating, likes';
+  }
+
+  if (cacheSuffix) {
+    queryName += cacheSuffix;
   }
 
   return {
-    name: queryName,
+    name: `${queryName}-${rootParam}-${supplementParam}`,
     text: queryString,
-    values: queryVals,
   };
 };
 
@@ -48,31 +84,125 @@ const selectDynamically = (rootParam, supplementParam, columnOverride) => {
  */
 module.exports.getAll = async (searchParam, reviewId) => {
   if (searchParam) {
-    const queryOpts = selectDynamically(searchParam);
+    const queryOpts = buildQuery(queryTypes.SELECT, searchParam);
     const result = await client.query(queryOpts);
     return result.rows;
   }
   /* IF searching by review id, query the database for the particular review id*/
   if (reviewId) {
-    const queryOpts = selectDynamically(reviewId, null, 'id');
+    const queryOpts = buildQuery(queryTypes.SELECT, reviewId, null, 'id');
     const result = await client.query(queryOpts);
-    return result.rows[0].likes;
+    if (result.rows[0]) {
+      return result.rows[0].likes;
+    }
+    return 0;
   }
 };
 
 /**
- *
+ * Get One
  * @param searchParam
  * @param reviewId
  * @returns {Promise<*>}
  */
 module.exports.getOne = async (searchParam, reviewId) => {
-  const queryOpts = selectDynamically(searchParam, reviewId, null);
+  const queryOpts = buildQuery(queryTypes.SELECT, searchParam, reviewId);
   const result = await client.query(queryOpts);
   return result.rows;
 };
 
-module.exports.createOne = async (reviewData) => {};
-module.exports.updateOne = async (searchParam, reviewId) => {};
-module.exports.deleteOne = async (searchParam, reviewId) => {};
-module.exports.deleteAll = async (searchParam, reviewId) => {};
+/**
+ * Create One
+ * @param reviewData {{}} - Date to be inserted into the database
+ * @returns {Promise<any>}
+ */
+module.exports.createOne = async (reviewData) => {
+  const { item, author, body, rating } = reviewData;
+  const result = await client.query(
+    `INSERT INTO reviews(author, body, item, rating,likes) VALUES ('${author}', '${body}', ${item}, ${rating}, 0) RETURNING id, author, body, item, rating, likes`
+  );
+  return result.rows[0];
+};
+
+/**
+ * Update One
+ * @param searchParam {string} - The root parameter to use for search queries
+ * @param reviewId {number | string} - The id of the review to update
+ * @param reviewData
+ * @returns {Promise<number | NumberConstructor | QueryResult<any>>}
+ */
+module.exports.updateOne = async (searchParam, reviewId, reviewData) => {
+  if (searchParam && reviewData) {
+    const { item, author, body, rating } = reviewData;
+    const queryOpts = buildQuery(
+      queryTypes.UPDATE,
+      searchParam,
+      reviewId,
+      null,
+      `item = ${item}, author = '${author}', body = '${body}', rating = ${rating}`,
+      null,
+      true
+    );
+    const result = await client.query(queryOpts);
+    return result.rows[0];
+  }
+
+  if (reviewId) {
+    const queryOpts = buildQuery(
+      queryTypes.UPDATE,
+      reviewId,
+      null,
+      'id',
+      'likes = likes + 1',
+      '-increment',
+      true
+    );
+    const result = await client.query(queryOpts);
+    if (result.rows[0]) {
+      return result.rows[0].likes;
+    }
+    return 0;
+  }
+};
+
+/**
+ * Delete One
+ * @param searchParam {string} - The root parameter to search by
+ * @param reviewId {number} - The id of the review to delete
+ * @returns {Promise<number|NumberConstructor>}
+ */
+module.exports.deleteOne = async (searchParam, reviewId) => {
+  if (searchParam) {
+    const queryOpts = buildQuery(queryTypes.DELETE, searchParam, reviewId);
+    const result = await client.query(queryOpts);
+    return result.rowCount;
+  }
+
+  if (reviewId) {
+    const queryOpts = buildQuery(
+      queryTypes.UPDATE,
+      reviewId,
+      null,
+      'id',
+      'likes = likes - 1',
+      '-decrement',
+      true
+    );
+    const result = await client.query(queryOpts);
+    if (result.rows[0]) {
+      return result.rows[0].likes;
+    }
+    return 0;
+  }
+};
+
+/**
+ * Delete All
+ * @param searchParam {string} - The root parameter to search by
+ * @returns {Promise<number>}
+ */
+module.exports.deleteAll = async (searchParam) => {
+  const queryOpts = buildQuery(queryTypes.DELETE, searchParam);
+  const result = await client.query(queryOpts);
+  return result.rowCount;
+};

@@ -22,8 +22,8 @@ module.exports.getAllReviews = catchAsync(async (req, res) => {
  */
 module.exports.deleteAllReviews = catchAsync(async (req, res) => {
   const { searchParam } = req.params;
-  await deleteAll(searchParam, null);
-  res.status(200).json({ message: 'Reviews Deleted!' });
+  const rowCount = await deleteAll(searchParam);
+  res.status(200).json({ message: `${rowCount} reviews deleted!` });
 });
 
 /**
@@ -50,7 +50,14 @@ module.exports.getOneReview = catchAsync(async (req, res) => {
  */
 module.exports.updateOneReview = catchAsync(async (req, res) => {
   const { searchParam, reviewId } = req.params;
-  const review = await updateOne(searchParam, reviewId);
+  const { item, author, body, rating } = req.body;
+
+  const review = await updateOne(searchParam, reviewId, {
+    item,
+    author,
+    body,
+    rating,
+  });
   res.status(200).json(review);
 });
 
@@ -60,8 +67,8 @@ module.exports.updateOneReview = catchAsync(async (req, res) => {
  */
 module.exports.deleteOneReview = catchAsync(async (req, res) => {
   const { searchParam, reviewId } = req.params;
-  await deleteOne(searchParam, reviewId);
-  res.status(200).json({ message: 'Review Deleted!' });
+  const rowCount = await deleteOne(searchParam, reviewId);
+  res.status(200).json({ message: `${rowCount} reviews deleted!` });
 });
 
 /**
