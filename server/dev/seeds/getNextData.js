@@ -8,9 +8,8 @@ const generateReview = require('./generator');
  * @param chunkSize {number} - The total chunkSize of each chunk
  * @param chunks {number} - The total number of chunks to be processed
  * @returns {Promise<unknown>} - Array of data to be inserted into the database
- * @param queryString {string} - The string to use for query insertion
  */
-function getNextData(t, currentChunk, chunkSize, chunks, queryString) {
+function getNextData(t, currentChunk, chunkSize, chunks) {
   return new Promise((resolve) => {
     /* If the current chunk number is greater than (or equal to) the total number of chunks, resolve to null to stop
      seeding */
@@ -30,8 +29,8 @@ function getNextData(t, currentChunk, chunkSize, chunks, queryString) {
 
       for (let j = 1; j <= numberOfReviews; j++) {
         j === numberOfReviews
-          ? reviews.push(generateReview(true, queryString))
-          : reviews.push(generateReview(false, queryString));
+          ? reviews.push(generateReview(true))
+          : reviews.push(generateReview(false));
       }
     }
     // Resolve this promise with the generated data

@@ -3,30 +3,40 @@ const { Client } = require('pg');
 const dbDebug = require('debug')('database:startup');
 
 /* Create the postgreSQL client */
-const client = new Client();
+const creationClient = new Client({ database: 'postgres' });
+
+const createDatabase = async () => {
+  try {
+    await creationClient.connect();
+    await creationClient.query(`CREATE DATABASE ${process.env.DATABASE_NAME}`);
+  } catch (e) {
+    // Postgres does not have a built in method for CREATE DATABASE IF NOT EXISTS
+    // ignored - database exists
+  } finally {
+    await creationClient.end();
+  }
+};
 
 /**
  * Connect to the PostgreSQL database
  * @returns {Promise<Client>}
  */
-module.exports.connectToDatabase = async () => {
-  try {
-    await client.connect();
+const connectToDatabase = async () => {
+  let connectionClient;
 
-    try {
-      await client.query(`CREATE DATABASE ${process.env.DATABASE_NAME}`);
-    } catch (e) {
-      // Postgres does not have a built in method for CREATE DATABASE IF NOT EXISTS
-      // ignored - database exists
-    }
+  try {
+    await createDatabase();
+
+    connectionClient = new Client({ database: process.env.DATABASE_NAME });
+    await connectionClient.connect();
 
     /* Create the reviews table if it doesn't exist */
-    await client.query(`
+    await connectionClient.query(`
     CREATE TABLE IF NOT EXISTS reviews (
-        id SERIAL UNIQUE,
+        _id VARCHAR PRIMARY KEY,
+        item INT,
         author VARCHAR,
         body VARCHAR,
-        item INT,
         rating INT,
         likes INT
         );`);
@@ -35,7 +45,8 @@ module.exports.connectToDatabase = async () => {
   } catch (e) {
     dbDebug(e);
   }
-  return client;
+  return connectionClient;
 };
 
-module.exports.client = client;
+module.exports.createDatabase = createDatabase;
+module.exports.connectToDatabase = connectToDatabase;
