@@ -8,7 +8,7 @@ const pgp = require('pg-promise')({
   capSQL: true, // generate capitalized SQL
 });
 
-const getNextData = require('./getNextData');
+const getNextData = require('../getNextData');
 
 /**
  * Prepare Database
@@ -38,10 +38,10 @@ const prepareDatabase = async (dbName) => {
   await db.none('DROP TABLE IF EXISTS $1:name', ['reviews']);
   await db.none(`
   CREATE TABLE reviews (
-      id SERIAL UNIQUE,
+      _id VARCHAR PRIMARY KEY,
+      item INT,
       author VARCHAR,
       body VARCHAR,
-      item INT,
       rating INT,
       likes INT
       );`);
@@ -73,7 +73,7 @@ const seedPostgres = async (dbName, amount) => {
 
   // Configure pg-promise to use the database columns
   const cs = new pgp.helpers.ColumnSet(
-    ['author', 'body', 'item', 'rating', 'likes'],
+    ['_id', 'author', 'body', 'item', 'rating', 'likes'],
     { table: 'reviews' }
   );
 
@@ -122,9 +122,6 @@ const seedPostgres = async (dbName, amount) => {
 
       spinner.setSpinnerTitle('Indexing author column... %s  ');
       await db.none('CREATE INDEX idx_author_id ON reviews(author)');
-
-      spinner.setSpinnerTitle('Indexing review column... %s  ');
-      await db.none('CREATE INDEX idx_item_id ON reviews(id)');
 
       spinner.stop();
 
