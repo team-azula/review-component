@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "CORE_DB=PSQL DEBUG=server:startup,database:startup nodemon",
+    "dev:psql": "CORE_DB=PSQL DEBUG=server:startup,database:startup nodemon",
     "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
     "seed:psql": "DEBUG=database:startup node ./dev/seeds/seedDatabase.js -p",
     "seed:cql": "DEBUG=database:startup node ./dev/seeds/seedDatabase.js -c"
