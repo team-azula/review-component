@@ -13,7 +13,7 @@ const getNextData = require('./getNextData');
  * @param dbName {string}
  */
 const seedCassandra = async (dbName, amount) => {
-  let chunkSize = 2000;
+  let chunkSize = 10000;
   let chunks = Math.ceil(amount / chunkSize);
 
   // If the number of desired seed entries is less than the total chunkSize
@@ -39,17 +39,16 @@ const seedCassandra = async (dbName, amount) => {
   );
 
   let client;
-  const concurrencyLevel = 2000;
 
   /* Queries For Use In Batch Insertion*/
   const insertReviewQuery =
     'INSERT INTO review_by_id (reviewId, author, body, item, rating, likes) VALUES (?, ?, ?, ?, ?, ?)';
 
   const insertItemQuery =
-    'INSERT INTO reviews_by_item (item, reviewIds) VALUES (?, textAsBlob(?))';
+    "INSERT INTO reviews_by_item (item, reviewIds) VALUES (?, textAsBlob('?'))";
 
   const insertAuthorQuery =
-    'INSERT INTO reviews_by_author (author, reviewIds) VALUES (?, textAsBlob(?))';
+    "INSERT INTO reviews_by_author (author, reviewIds) VALUES (?, textAsBlob('?'))";
 
   try {
     /* Connect to the database */
@@ -77,37 +76,21 @@ const seedCassandra = async (dbName, amount) => {
         ]);
 
         if (!itemData[review.item]) {
-          itemData[review.item] = review._id;
+          itemData[review.item] = [review._id];
         } else {
-          itemData[review.item] += `,${review._id}`;
+          itemData[review.item].push(review._id);
         }
 
         if (!authorData[review.author]) {
-          authorData[review.author] = review._id;
+          authorData[review.author] = [review._id];
         } else {
-          authorData[review.author] += `,${review._id}`;
+          authorData[review.author].push(review._id);
         }
       });
 
-      await executeConcurrent(client, insertReviewQuery, reviewData, {
-        concurrencyLevel,
-      });
-      await executeConcurrent(
-        client,
-        insertItemQuery,
-        Object.entries(itemData),
-        {
-          concurrencyLevel,
-        }
-      );
-      await executeConcurrent(
-        client,
-        insertAuthorQuery,
-        Object.entries(authorData),
-        {
-          concurrencyLevel,
-        }
-      );
+      await executeConcurrent(client, insertReviewQuery, reviewData);
+      await executeConcurrent(client, insertItemQuery, itemData.entries());
+      await executeConcurrent(client, insertAuthorQuery, authorData.entries());
     };
 
     /* Start the timer */
@@ -115,23 +98,18 @@ const seedCassandra = async (dbName, amount) => {
 
     /* Generate Batches */
     for (let i = 0; i < chunks; i += 1) {
-      creationBar.tick();
       await getNextData(null, i, chunkSize, chunks, false).then(processData);
+      creationBar.tick();
     }
-    console.log('Verifying... ');
 
     /* End the timer - and report the total time taken */
     const end = new Date().getTime();
     const time = end - start;
 
-    console.log(`Total batches: ${chunks}, Duration: ${time} ms`);
+    console.log(`\nTotal batches: ${chunks}, Duration: ${time} ms`);
 
     console.log('Closing connection... ');
   } catch (e) {
-    console.log(e);
   } finally {
-    client.shutdown();
   }
 };
-
-module.exports = seedCassandra;

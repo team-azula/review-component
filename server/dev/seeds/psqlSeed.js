@@ -100,7 +100,7 @@ const seedPostgres = async (dbName, amount) => {
       }
     };
     return t.sequence((index) =>
-      getNextData(t, index, chunkSize, chunks, null).then(processData)
+      getNextData(t, index, chunkSize, chunks).then(processData)
     );
   })
     .then((data) => {

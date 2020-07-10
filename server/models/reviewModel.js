@@ -1,3 +1,5 @@
+const short = require('short-uuid');
+
 /**
  * Review Model
  * @param author {string} - the author of the review
@@ -9,17 +11,10 @@
  * @constructor
  */
 module.exports.createReview = (item, author, body, rating, likes) => ({
+  _id: short.generate(),
   item,
   author,
   body,
   rating,
   likes,
 });
-
-module.exports.createReviewAsArray = (item, author, body, rating, likes) => [
-  item,
-  author,
-  body,
-  rating,
-  likes,
-];
