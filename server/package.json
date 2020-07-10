@@ -6,9 +6,10 @@
   "scripts": {
     "dev:psql": "CORE_DB=PSQL DEBUG=server:startup,database:startup nodemon",
     "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
-    "generate:csv": "node dev/seeds/write_csv/writeCsv.js",
-    "seed:direct:psql": "node dev/seeds/seedDatabase.js -p",
-    "seed:direct:cql": "node dev/seeds/seedDatabase.js -c"
+    "generate:csv:slice": "node dev/seeds/write_csv/writeCsv.js -1000",
+    "generate:csv:all": "node dev/seeds/write_csv/writeCsv.js -10000000",
+    "seed:psql": "node dev/seeds/seedDatabase.js -p",
+    "seed:cql": "node dev/seeds/seedDatabase.js -c"
   },
   "author": "",
   "license": "ISC",

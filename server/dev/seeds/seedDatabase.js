@@ -9,10 +9,6 @@ const chalkPipe = require('chalk-pipe');
 const seedPostgres = require('./direct_load/psqlSeed');
 const seedCassandra = require('./direct_load/csqlSeed');
 
-const { generateFile } = require('./write_csv/writeCsv');
-const { copyToPostgres } = require('./write_csv/psqlCopy');
-const { copyToCassandra } = require('./write_csv/cqlCopy');
-
 const CQL_IDENTIFIER = 'CQL';
 const PSQL_IDENTIFIER = 'PSQL';
 
