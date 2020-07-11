@@ -10,10 +10,7 @@ require('newrelic');
 const serverDebug = require('debug')('server:startup');
 
 /* Dynamically load Postgres or Cassandra depending on the chosen CORE_DB */
-const { connectToDatabase } =
-  process.env.CORE_DB === 'PSQL'
-    ? require('./database/PostgreSQL')
-    : require('./database/Cassandra');
+const { connectToDatabase } = require('./database');
 
 /* Require the express app into our server instance */
 const app = require('./app');

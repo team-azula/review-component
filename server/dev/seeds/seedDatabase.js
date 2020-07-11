@@ -5,34 +5,17 @@ require('dotenv').config({
 
 const inquirer = require('inquirer');
 const chalkPipe = require('chalk-pipe');
-
 const seedPostgres = require('./direct_load/psqlSeed');
-const seedCassandra = require('./direct_load/csqlSeed');
+const { swarmPsql } = require('./swarm/swarmPsql');
 
-const CQL_IDENTIFIER = 'CQL';
-const PSQL_IDENTIFIER = 'PSQL';
-
-let dbName = process.env.DATABASE_NAME;
-let seedAmount = 100;
-let dbms = null;
-
-if (process.argv[2] === '-d') {
-  seedPostgres('reviews', 10000000, true);
-} else {
-  if (process.argv[2] === '-c') {
-    dbms = CQL_IDENTIFIER;
+(async () => {
+  if (process.argv[2] === '-d') {
+    process.env.PGCONTAINER = process.argv[3].slice(1);
+    return await swarmPsql();
   }
 
-  if (process.argv[2] === '-p') {
-    dbms = PSQL_IDENTIFIER;
-  }
-
-  if (dbms === null) {
-    // eslint-disable-next-line no-console
-    return console.log(
-      'Please enter a command flag: -c (for cql) or -p (for psql)'
-    );
-  }
+  let dbName = process.env.DATABASE_NAME;
+  let seedAmount = 100;
 
   const questions = [
     {
@@ -65,12 +48,7 @@ if (process.argv[2] === '-d') {
         },
       ])
       .then(async (finalAnswer) => {
-        if (finalAnswer.confirm) {
-          // eslint-disable-next-line no-unused-expressions
-          dbms === CQL_IDENTIFIER
-            ? seedCassandra(dbName, seedAmount)
-            : seedPostgres(dbName, seedAmount);
-        }
+        if (finalAnswer.confirm) return seedPostgres(dbName, seedAmount);
       });
   });
-}
+})();

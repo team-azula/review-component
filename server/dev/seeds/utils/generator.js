@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const faker = require('faker');
 const random = require('random');
-const { createReview } = require('../../models/reviewModel');
+const { createReview } = require('../../../models/reviewModel');
 
 /* Global variable to hold the number of creations currently made
  * This is used in the database seeding script to keep track of id's during bulk inserts */
