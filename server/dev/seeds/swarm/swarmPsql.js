@@ -1,9 +1,6 @@
-const PromiseBar = require('promise.bar');
-const chalk = require('chalk');
 const { Spinner } = require('cli-spinner');
 const { execSync } = require('child_process');
-
-PromiseBar.enable();
+const log = require('single-line-log').stdout;
 
 const { writeCsv } = require('../utils/writeCsv');
 const { uploadCsv } = require('../utils/uploadCsv');
@@ -21,9 +18,9 @@ module.exports.swarmPsql = async () => {
   }
 
   console.log('\n -------- STARTING UPLOAD SWARM ----------');
-  console.log(` | TOTAL RECORDS: ${PRIMARY_RECORDS}`);
-  console.log(` | NUMBER OF CHUNKS: ${NUM_CHUNKS}`);
-  console.log(` | WORKER GROUP SIZE: ${WORKER_GROUP_SIZE}`);
+  console.log(` | - TOTAL RECORDS: ${PRIMARY_RECORDS}`);
+  console.log(` | - NUMBER OF CHUNKS: ${NUM_CHUNKS}`);
+  console.log(` | - WORKER GROUP SIZE: ${WORKER_GROUP_SIZE}`);
   console.log(' ------------------------------------------\n');
 
   let chunksRemaining = NUM_CHUNKS;
@@ -36,17 +33,15 @@ module.exports.swarmPsql = async () => {
       chunkGenerations.push(writeCsv(i, CHUNK_SIZE, uploadCsv));
     }
 
-    await PromiseBar.all(chunkGenerations, {
-      label: chalk.blue(
-        `Worker Group ${iteration} of ${NUM_CHUNKS / WORKER_GROUP_SIZE}`
-      ),
-      barFormat: chalk.dim.blue,
-      filled: '=',
-      empty: ' ',
-    });
+    const insertions = await Promise.all(chunkGenerations);
+    const insertionCount = insertions.reduce((a, b) => a + b);
+
+    log(` ---- INSERTED ${insertionCount} RECORDS ----`);
 
     console.log(
-      `\n ---------- WORKER GROUP ${iteration} COMPLETE ----------\n`
+      `\n\n ---------- WORKER GROUP ${iteration} OF ${
+        NUM_CHUNKS / WORKER_GROUP_SIZE
+      } COMPLETE ----------\n`
     );
 
     iteration++;
@@ -74,5 +69,8 @@ module.exports.swarmPsql = async () => {
 
   const end = new Date().getTime();
   const time = end - start;
-  console.log(`\nTotal time to seed & index: ${time} ms`);
+
+  console.log('\n -------- SWARM COMPLETE ----------');
+  console.log(`| - TOTAL TIME: ${time} ms`);
+  console.log(' ----------------------------------\n');
 };

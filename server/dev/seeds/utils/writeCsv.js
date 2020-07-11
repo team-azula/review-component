@@ -24,7 +24,7 @@ const csvStringifier = createCsvStringifier({
  * @param cb
  */
 module.exports.writeCsv = async (chunk, chunkSize, cb) => {
-  log(`WRITING CHUNK ${chunk + 1}`);
+  log(` - WRITING CHUNK ${chunk + 1}`);
   const filePath = path.resolve(__dirname, `../files/seedData_${chunk}.csv`);
 
   /* Create the write stream */

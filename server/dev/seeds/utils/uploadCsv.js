@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
+const log = require('single-line-log').stdout;
 
 module.exports.uploadCsv = async (filePath, chunk) => {
   const { PGCONTAINER } = process.env;
@@ -9,10 +10,12 @@ module.exports.uploadCsv = async (filePath, chunk) => {
   const upload = spawn('sh', ['-c', execString]);
 
   return new Promise((resolve, reject) => {
-    console.log(`SENDING CHUNK: ${chunk}`);
+    log(` - SENDING CHUNK: ${chunk}`);
+    let insertions = 0;
 
     upload.stdout.on('data', (data) => {
-      console.log(`UPLOADED CHUNK: ${chunk}: ${data}`);
+      insertions += parseInt(data.toString().replace('COPY', ''), 10);
+      log(` - UPLOADED CHUNK: ${chunk}: ${data}`);
     });
 
     upload.stderr.on('data', () => {});
@@ -21,14 +24,13 @@ module.exports.uploadCsv = async (filePath, chunk) => {
       reject(error);
     });
 
-    upload.on('close', (code) => {
+    upload.on('close', async (code) => {
       if (code === 0) {
-        console.log(`DELETING FILE: ${chunk}`);
-        resolve(
-          fs.unlink(filePath, (err) => {
-            reject(err);
-          })
-        );
+        log(` - DELETING FILE: ${chunk}`);
+        await fs.unlink(filePath, (err) => {
+          reject(err);
+        });
+        resolve(insertions);
       }
       reject(code);
     });

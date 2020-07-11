@@ -33,7 +33,6 @@
     "pg": "^8.2.2",
     "pg-promise": "^10.5.8",
     "progress": "^2.0.3",
-    "promise.bar": "^0.1.5",
     "random": "^2.2.0",
     "short-uuid": "^3.1.1",
     "single-line-log": "^1.1.2",
