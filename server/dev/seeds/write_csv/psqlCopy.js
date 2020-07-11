@@ -1,8 +1,7 @@
 const path = require('path');
 
 /* Shell script for seeding */
-/* cat dev/seeds/write_csv/seedData.csv | docker exec -i review-component_postgres_1 psql -U admin reviews -c "copy
- reviews from stdin with(format csv, header true);" */
+/* cat ./dev/seeds/write_csv/seedData.csv | docker exec -i 1015d4579e99 psql -U admin reviews -c "copy reviews from stdin with(format csv, header true);" */
 
 require('dotenv').config({
   path: path.resolve(__dirname, '../../../config/.env'),
