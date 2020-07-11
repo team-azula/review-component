@@ -27,6 +27,7 @@ module.exports.swarmPsql = async () => {
   let iteration = 1;
 
   while (chunksRemaining > 0) {
+    const loopStart = new Date().getTime();
     let chunkGenerations = [];
 
     for (let i = 0; i < WORKER_GROUP_SIZE; i++) {
@@ -36,7 +37,10 @@ module.exports.swarmPsql = async () => {
     const insertions = await Promise.all(chunkGenerations);
     const insertionCount = insertions.reduce((a, b) => a + b);
 
-    log(` ---- INSERTED ${insertionCount} RECORDS ----`);
+    const loopEnd = new Date().getTime();
+    const loopTime = loopEnd - loopStart;
+
+    log(` ---- INSERTED ${insertionCount} RECORDS IN ${loopTime} ms----`);
 
     console.log(
       `\n\n ---------- WORKER GROUP ${iteration} OF ${
