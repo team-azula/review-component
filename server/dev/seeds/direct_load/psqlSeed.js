@@ -55,7 +55,7 @@ const prepareDatabase = async (dbName) => {
  * @param amount {string} - The amount of items to seed
  * @returns {Promise<void>}
  */
-const seedPostgres = async (dbName, amount) => {
+const seedPostgres = async (dbName, amount, skipPrep) => {
   let chunkSize = 10000;
   let chunks = Math.ceil(amount / chunkSize);
 
@@ -69,7 +69,20 @@ const seedPostgres = async (dbName, amount) => {
   }
 
   // Prepare the database
-  const db = await prepareDatabase(dbName);
+  let db;
+
+  if (skipPrep) {
+    db = pgp({
+      host: process.env.PGHOST,
+      port: process.env.PGPORT,
+      database: dbName,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      max: 30,
+    });
+  } else {
+    db = await prepareDatabase(dbName);
+  }
 
   // Configure pg-promise to use the database columns
   const cs = new pgp.helpers.ColumnSet(

@@ -36,10 +36,10 @@ module.exports.connectToDatabase = async () => {
   /* Connect to the client */
   try {
     client = new cassandra.Client({
-      contactPoints: ['127.0.0.1'],
+      contactPoints: ['0.0.0.0'],
       localDataCenter: 'datacenter1',
       protocolOptions: {
-        port: process.env.CQL_PORT,
+        port: process.env.CQPORT,
       },
     });
 
@@ -51,7 +51,7 @@ module.exports.connectToDatabase = async () => {
     await client.execute(createReviewByAuthorTb);
     await client.execute(createReviewTb);
 
-    dbDebug(`Cassandra running on port ${process.env.CQL_PORT}`);
+    dbDebug(`Cassandra running on port ${process.env.CQPORT}`);
   } catch (e) {
     dbDebug(e);
   }
