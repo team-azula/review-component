@@ -4,6 +4,11 @@ const dbDebug = require('debug')('database:startup');
 
 /* Create the postgreSQL client */
 const creationClient = new Client({ database: 'postgres' });
+let connectionClient;
+
+const getConnectionClient = () => {
+  return connectionClient;
+};
 
 const createDatabase = async () => {
   try {
@@ -22,12 +27,11 @@ const createDatabase = async () => {
  * @returns {Promise<Client>}
  */
 const connectToDatabase = async () => {
-  let connectionClient;
-
   try {
     await createDatabase();
-
-    connectionClient = new Client({ database: process.env.DATABASE_NAME });
+    connectionClient = new Client({
+      database: process.env.DATABASE_NAME,
+    });
     await connectionClient.connect();
 
     /* Create the reviews table if it doesn't exist */
@@ -50,3 +54,4 @@ const connectToDatabase = async () => {
 
 module.exports.createDatabase = createDatabase;
 module.exports.connectToDatabase = connectToDatabase;
+module.exports.getConnectionClient = getConnectionClient;

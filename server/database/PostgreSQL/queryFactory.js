@@ -1,5 +1,6 @@
 /* Import Modules */
-const { client } = require('./index');
+const short = require('short-uuid');
+const { getConnectionClient } = require('./index');
 
 const queryTypes = {
   SELECT: 'SELECT',
@@ -31,13 +32,13 @@ const buildQuery = (
   let queryName;
 
   if (columnOverride) {
-    queryName = `${queryType}-likes-by-item`;
+    queryName = `${queryType}-`;
     column = columnOverride;
   } else if (Number(rootParam)) {
-    queryName = `${queryType}-reviews-by-item`;
+    queryName = `${queryType}-`;
     column = 'item';
   } else {
-    queryName = `${queryType}-reviews-by-author`;
+    queryName = `${queryType}-`;
     column = 'author';
   }
 
@@ -58,12 +59,12 @@ const buildQuery = (
   }
 
   if (supplementParam) {
-    queryName += '-and-id';
-    queryString += ` AND id = ${supplementParam}`;
+    queryName += '-and-_id';
+    queryString += ` AND _id = '${supplementParam}'`;
   }
 
   if (returnDataAfterUpdate) {
-    queryString += ' RETURNING id, author, body, item, rating, likes';
+    queryString += ' RETURNING _id, author, body, item, rating, likes';
   }
 
   if (cacheSuffix) {
@@ -85,13 +86,13 @@ const buildQuery = (
 module.exports.getAll = async (searchParam, reviewId) => {
   if (searchParam) {
     const queryOpts = buildQuery(queryTypes.SELECT, searchParam);
-    const result = await client.query(queryOpts);
+    const result = await getConnectionClient().query(queryOpts);
     return result.rows;
   }
-  /* IF searching by review id, query the database for the particular review id*/
+  /* IF searching by review _id, query the database for the particular review _id*/
   if (reviewId) {
-    const queryOpts = buildQuery(queryTypes.SELECT, reviewId, null, 'id');
-    const result = await client.query(queryOpts);
+    const queryOpts = buildQuery(queryTypes.SELECT, reviewId, null, '_id');
+    const result = await getConnectionClient().query(queryOpts);
     if (result.rows[0]) {
       return result.rows[0].likes;
     }
@@ -107,7 +108,7 @@ module.exports.getAll = async (searchParam, reviewId) => {
  */
 module.exports.getOne = async (searchParam, reviewId) => {
   const queryOpts = buildQuery(queryTypes.SELECT, searchParam, reviewId);
-  const result = await client.query(queryOpts);
+  const result = await getConnectionClient().query(queryOpts);
   return result.rows;
 };
 
@@ -118,8 +119,8 @@ module.exports.getOne = async (searchParam, reviewId) => {
  */
 module.exports.createOne = async (reviewData) => {
   const { item, author, body, rating } = reviewData;
-  const result = await client.query(
-    `INSERT INTO reviews(author, body, item, rating,likes) VALUES ('${author}', '${body}', ${item}, ${rating}, 0) RETURNING id, author, body, item, rating, likes`
+  const result = await getConnectionClient().query(
+    `INSERT INTO reviews(_id, author, body, item, rating, likes) VALUES ('${short.generate()}', '${author}', '${body}', ${item}, ${rating}, 0) RETURNING _id, author, body, item, rating, likes`
   );
   return result.rows[0];
 };
@@ -127,7 +128,7 @@ module.exports.createOne = async (reviewData) => {
 /**
  * Update One
  * @param searchParam {string} - The root parameter to use for search queries
- * @param reviewId {number | string} - The id of the review to update
+ * @param reviewId {number | string} - The _id of the review to update
  * @param reviewData
  * @returns {Promise<number | NumberConstructor | QueryResult<any>>}
  */
@@ -143,7 +144,7 @@ module.exports.updateOne = async (searchParam, reviewId, reviewData) => {
       null,
       true
     );
-    const result = await client.query(queryOpts);
+    const result = await getConnectionClient().query(queryOpts);
     return result.rows[0];
   }
 
@@ -152,12 +153,12 @@ module.exports.updateOne = async (searchParam, reviewId, reviewData) => {
       queryTypes.UPDATE,
       reviewId,
       null,
-      'id',
+      '_id',
       'likes = likes + 1',
       '-increment',
       true
     );
-    const result = await client.query(queryOpts);
+    const result = await getConnectionClient().query(queryOpts);
     if (result.rows[0]) {
       return result.rows[0].likes;
     }
@@ -168,13 +169,13 @@ module.exports.updateOne = async (searchParam, reviewId, reviewData) => {
 /**
  * Delete One
  * @param searchParam {string} - The root parameter to search by
- * @param reviewId {number} - The id of the review to delete
+ * @param reviewId {number} - The _id of the review to delete
  * @returns {Promise<number|NumberConstructor>}
  */
 module.exports.deleteOne = async (searchParam, reviewId) => {
   if (searchParam) {
     const queryOpts = buildQuery(queryTypes.DELETE, searchParam, reviewId);
-    const result = await client.query(queryOpts);
+    const result = await getConnectionClient().query(queryOpts);
     return result.rowCount;
   }
 
@@ -183,12 +184,12 @@ module.exports.deleteOne = async (searchParam, reviewId) => {
       queryTypes.UPDATE,
       reviewId,
       null,
-      'id',
+      '_id',
       'likes = likes - 1',
       '-decrement',
       true
     );
-    const result = await client.query(queryOpts);
+    const result = await getConnectionClient().query(queryOpts);
     if (result.rows[0]) {
       return result.rows[0].likes;
     }
@@ -203,6 +204,6 @@ module.exports.deleteOne = async (searchParam, reviewId) => {
  */
 module.exports.deleteAll = async (searchParam) => {
   const queryOpts = buildQuery(queryTypes.DELETE, searchParam);
-  const result = await client.query(queryOpts);
+  const result = await getConnectionClient().query(queryOpts);
   return result.rowCount;
 };

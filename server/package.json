@@ -8,8 +8,10 @@
     "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
     "generate:csv:slice": "node dev/seeds/write_csv/writeCsv.js -1000",
     "generate:csv:all": "node dev/seeds/write_csv/writeCsv.js -10000000",
+    "copy:csv:psql": "node dev/seeds/write_csv/psqlCopy.js testcv",
     "seed:psql": "node dev/seeds/seedDatabase.js -p",
-    "seed:cql": "node dev/seeds/seedDatabase.js -c"
+    "seed:cql": "node dev/seeds/seedDatabase.js -c",
+    "start": "CORE_DB=PSQL DEBUG=server:startup,database:startup node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -32,6 +34,7 @@
     "inquirer": "^7.3.0",
     "jest": "^26.1.0",
     "lodash": "^4.17.15",
+    "newrelic": "^6.11.0",
     "nodemon": "^2.0.4",
     "pg": "^8.2.2",
     "pg-promise": "^10.5.8",

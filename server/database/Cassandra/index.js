@@ -2,7 +2,11 @@
 const dbDebug = require('debug')('database:startup');
 const cassandra = require('cassandra-driver');
 
-const { distance } = cassandra.types;
+let client;
+
+module.exports.getConnectionClient = () => {
+  return client;
+};
 
 /**
  * Connect to Database
@@ -28,8 +32,6 @@ module.exports.connectToDatabase = async () => {
   const createReviewTb =
     'CREATE TABLE IF NOT EXISTS review_by_id (reviewId text, author text, body text, item int, rating int, likes' +
     ' int, PRIMARY KEY (reviewId))';
-
-  let client;
 
   /* Connect to the client */
   try {

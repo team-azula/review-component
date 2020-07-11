@@ -117,9 +117,7 @@ const seedPostgres = async (dbName, amount) => {
       const spinner = new Spinner('Indexing item column... %s  ');
       spinner.setSpinnerString('|/-\\');
       spinner.start();
-
       await db.none('CREATE INDEX idx_app_id ON reviews(item)');
-
       spinner.setSpinnerTitle('Indexing author column... %s  ');
       await db.none('CREATE INDEX idx_author_id ON reviews(author)');
 
