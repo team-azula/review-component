@@ -27,7 +27,6 @@ class Review extends Component {
   }
 
   handleSelectChange(e) {
-    console.log('state changed');
     let reviews = this.state.original.slice();
     switch (e.target.value) {
       case 'recent':
@@ -36,9 +35,7 @@ class Review extends Component {
         });
         break;
       case 'liked':
-        console.log('liked', reviews);
         reviews.sort((a, b) => b.likes - a.likes);
-        console.log('liked', reviews);
         this.setState({
           reviews,
         });
