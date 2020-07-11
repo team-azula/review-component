@@ -40,7 +40,7 @@ module.exports.swarmPsql = async () => {
     const loopEnd = new Date().getTime();
     const loopTime = loopEnd - loopStart;
 
-    log(` ---- INSERTED ${insertionCount} RECORDS IN ${loopTime} ms----`);
+    log(` ---- INSERTED ${insertionCount} RECORDS IN ${loopTime} ms`);
 
     console.log(
       `\n\n ---------- WORKER GROUP ${iteration} OF ${
