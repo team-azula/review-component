@@ -8,7 +8,7 @@ const pgp = require('pg-promise')({
   capSQL: true, // generate capitalized SQL
 });
 
-const getNextData = require('../getNextData');
+const getNextData = require('../utils/getNextData');
 
 /**
  * Prepare Database

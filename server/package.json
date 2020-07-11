@@ -4,20 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:psql": "CORE_DB=PSQL DEBUG=server:startup,database:startup nodemon",
-    "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
-    "generate:csv:slice": "node dev/seeds/write_csv/writeCsv.js -1000",
-    "generate:csv:all": "node dev/seeds/write_csv/writeCsv.js -10000000",
-    "copy:csv:psql": "node dev/seeds/write_csv/psqlCopy.js",
-    "seed:psql": "node dev/seeds/seedDatabase.js -p",
-    "seed:cql": "node dev/seeds/seedDatabase.js -c",
-    "seed:docker": "node dev/seeds/seedDatabase.js -d",
-    "start": "CORE_DB=PSQL DEBUG=server:startup,database:startup node index.js"
+    "dev:psql": "DEBUG=server:startup,database:startup nodemon",
+    "seed:local": "node dev/seeds/seedDatabase.js",
+    "start": "DEBUG=server:startup,database:startup node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cassandra-driver": "^4.5.2",
     "chalk": "^4.1.0",
     "chalk-pipe": "^4.0.0",
     "cli-spinner": "^0.2.10",
@@ -40,9 +33,10 @@
     "pg": "^8.2.2",
     "pg-promise": "^10.5.8",
     "progress": "^2.0.3",
+    "promise.bar": "^0.1.5",
     "random": "^2.2.0",
     "short-uuid": "^3.1.1",
-    "uuid": "^8.2.0",
+    "single-line-log": "^1.1.2",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {

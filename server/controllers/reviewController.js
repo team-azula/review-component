@@ -1,8 +1,12 @@
 /* Import Modules */
-const { getAll, getOne, createOne, updateOne, deleteOne, deleteAll } =
-  process.env.CORE_DB === 'PSQL'
-    ? require('../database/PostgreSQL/queryFactory')
-    : require('../database/Cassandra/queryFactory');
+const {
+  getAll,
+  getOne,
+  createOne,
+  updateOne,
+  deleteOne,
+  deleteAll,
+} = require('../database/queryFactory');
 
 const catchAsync = require('../utils/catchAsync');
 
