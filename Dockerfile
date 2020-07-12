@@ -10,6 +10,7 @@ COPY ./ ./
 # Command to run upon mounting image
 RUN cd client && npm install
 RUN cd server && npm install
+RUN git clone https://github.com/vishnubob/wait-for-it.git
 
 # Command to access the bash of the image
 CMD ["/bin/bash"]

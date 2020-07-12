@@ -8,9 +8,10 @@
     "dev:cql": "CORE_DB=CQL DEBUG=server:startup,database:startup nodemon",
     "generate:csv:slice": "node dev/seeds/write_csv/writeCsv.js -1000",
     "generate:csv:all": "node dev/seeds/write_csv/writeCsv.js -10000000",
-    "copy:csv:psql": "node dev/seeds/write_csv/psqlCopy.js testcv",
+    "copy:csv:psql": "node dev/seeds/write_csv/psqlCopy.js",
     "seed:psql": "node dev/seeds/seedDatabase.js -p",
     "seed:cql": "node dev/seeds/seedDatabase.js -c",
+    "seed:docker": "node dev/seeds/seedDatabase.js -d",
     "start": "CORE_DB=PSQL DEBUG=server:startup,database:startup node index.js"
   },
   "author": "",

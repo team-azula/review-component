@@ -1,26 +1,10 @@
-version: '2'
+version: '2.1'
 
 services:
-  # Backend API
-  review-component:
-    container_name: review-server
-    build: ./
-    command: npm start
-    working_dir: /app
-    env_file:
-      - ./server/config/.env
-    ports:
-      - "3002:3002"
-    environment:
-      POSTGRES_URI: postgres://admin:password@postgres:5432/reviews
-      REDIS_URI: redis://redis:6379
-    depends_on:
-      - postgres
-      - redis
-
   # Postgres
   postgres:
     image: postgres
+    container_name: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
@@ -30,8 +14,16 @@ services:
     ports:
       - "5432:5432"
 
-  #Redis
-  redis:
-    image: redis
+
+  # Backend API
+  review-component:
+    container_name: review-server
+    build: ./
+    working_dir: /app
+    env_file:
+      - ./server/config/.env
     ports:
-      - "6379:6379"
+      - "3002:3002"
+    depends_on:
+      - "postgres"
+    command: ["./wait-for-it/wait-for-it.sh", "postgres:5432", "--", "npm", "start"]
