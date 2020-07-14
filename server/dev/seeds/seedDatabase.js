@@ -20,6 +20,16 @@ const { swarmPsql } = require('./swarm/swarmPsql');
     skipPrep = true;
   }
 
+  if (process.argv[2] === '-slug') {
+    skipPrep = true;
+    await seedPostgres(
+      'reviews',
+      1000000,
+      skipPrep,
+      +process.argv[3].substr(1)
+    );
+  }
+
   let dbName = process.env.DATABASE_NAME;
   let seedAmount = 100;
   let startFrom = 0;
