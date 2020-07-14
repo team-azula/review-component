@@ -22,7 +22,7 @@ const { swarmPsql } = require('./swarm/swarmPsql');
 
   if (process.argv[2] === '-slug') {
     skipPrep = true;
-    return seedPostgres('reviews', 100000, skipPrep);
+    return seedPostgres('reviews', 1, skipPrep);
   }
 
   let dbName = process.env.DATABASE_NAME;
@@ -60,7 +60,9 @@ const { swarmPsql } = require('./swarm/swarmPsql');
       ])
       .then(async (finalAnswer) => {
         if (finalAnswer.confirm)
-          return seedPostgres(dbName, seedAmount, skipPrep);
+          await seedPostgres(dbName, seedAmount, skipPrep);
       });
   });
+
+  process.exit(0);
 })();
