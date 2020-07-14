@@ -56,7 +56,7 @@ const prepareDatabase = async (dbName) => {
  * @returns {Promise<void>}
  */
 const seedPostgres = async (dbName, amount, skipPrep) => {
-  let chunkSize = 100;
+  let chunkSize = 1000;
   let chunks = Math.ceil(amount / chunkSize);
 
   // If the number of desired seed entries is less than the total chunkSize
@@ -70,8 +70,10 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
 
   // Prepare the database
   let db;
+  let startAmount;
 
   if (skipPrep) {
+    startAmount = +process.argv[3].substr(1);
     db = pgp({
       host: process.env.PGHOST,
       port: process.env.PGPORT,
@@ -81,6 +83,7 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
       max: 30,
     });
   } else {
+    startAmount = 0;
     db = await prepareDatabase(dbName);
   }
 
@@ -113,7 +116,7 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
       }
     };
     return t.sequence((index) =>
-      getNextData(t, index, chunkSize, chunks).then(processData)
+      getNextData(t, index, chunkSize, chunks, startAmount).then(processData)
     );
   })
     .then((data) => {
@@ -126,21 +129,23 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
       console.log(error);
     })
     .finally(async () => {
-      const start = new Date().getTime();
-      const spinner = new Spinner('Indexing item column... %s  ');
-      spinner.setSpinnerString('|/-\\');
-      spinner.start();
-      await db.none('CREATE INDEX idx_app_id ON reviews(item)');
-      spinner.setSpinnerTitle('Indexing author column... %s  ');
-      await db.none('CREATE INDEX idx_author_id ON reviews(author)');
+      if (!skipPrep) {
+        const start = new Date().getTime();
+        const spinner = new Spinner('Indexing item column... %s  ');
+        spinner.setSpinnerString('|/-\\');
+        spinner.start();
+        await db.none('CREATE INDEX idx_app_id ON reviews(item)');
+        spinner.setSpinnerTitle('Indexing author column... %s  ');
+        await db.none('CREATE INDEX idx_author_id ON reviews(author)');
 
-      spinner.stop();
+        spinner.stop();
 
-      const end = new Date().getTime();
-      const time = end - start;
+        const end = new Date().getTime();
+        const time = end - start;
 
-      // Complete! - End the connection
-      console.log(`\nTotal time to index: ${time} ms`);
+        // Complete! - End the connection
+        console.log(`\nTotal time to index: ${time} ms`);
+      }
       console.log('Closing connection... ');
       db.$pool.end();
     });
