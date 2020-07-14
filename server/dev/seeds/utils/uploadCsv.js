@@ -26,10 +26,10 @@ module.exports.uploadCsv = async (filePath, chunk) => {
 
     upload.on('close', async (code) => {
       if (code === 0) {
-        log(` - DELETING FILE: ${chunk}`);
-        await fs.unlink(filePath, (err) => {
-          reject(err);
-        });
+        // log(` - DELETING FILE: ${chunk}`);
+        // await fs.unlink(filePath, (err) => {
+        //   reject(err);
+        // });
         resolve(insertions);
       }
       reject(code);

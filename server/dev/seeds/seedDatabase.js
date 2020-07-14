@@ -14,6 +14,12 @@ const { swarmPsql } = require('./swarm/swarmPsql');
     return await swarmPsql();
   }
 
+  let skipPrep = false;
+
+  if (process.argv[2] === '-skipPrep') {
+    skipPrep = true;
+  }
+
   let dbName = process.env.DATABASE_NAME;
   let seedAmount = 100;
 
@@ -48,7 +54,8 @@ const { swarmPsql } = require('./swarm/swarmPsql');
         },
       ])
       .then(async (finalAnswer) => {
-        if (finalAnswer.confirm) return seedPostgres(dbName, seedAmount);
+        if (finalAnswer.confirm)
+          return seedPostgres(dbName, seedAmount, skipPrep);
       });
   });
 })();
