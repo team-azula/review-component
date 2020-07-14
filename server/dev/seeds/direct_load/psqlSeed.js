@@ -55,8 +55,8 @@ const prepareDatabase = async (dbName) => {
  * @param amount {string} - The amount of items to seed
  * @returns {Promise<void>}
  */
-const seedPostgres = async (dbName, amount, skipPrep) => {
-  let chunkSize = 1000;
+const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
+  let chunkSize = 10000;
   let chunks = Math.ceil(amount / chunkSize);
 
   // If the number of desired seed entries is less than the total chunkSize
@@ -70,10 +70,8 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
 
   // Prepare the database
   let db;
-  let startAmount;
 
   if (skipPrep) {
-    startAmount = +process.argv[3].substr(1);
     db = pgp({
       host: process.env.PGHOST,
       port: process.env.PGPORT,
@@ -83,7 +81,6 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
       max: 30,
     });
   } else {
-    startAmount = 0;
     db = await prepareDatabase(dbName);
   }
 
@@ -129,7 +126,7 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
       console.log(error);
     })
     .finally(async () => {
-      if (!skipPrep) {
+      try {
         const start = new Date().getTime();
         const spinner = new Spinner('Indexing item column... %s  ');
         spinner.setSpinnerString('|/-\\');
@@ -142,12 +139,17 @@ const seedPostgres = async (dbName, amount, skipPrep) => {
 
         const end = new Date().getTime();
         const time = end - start;
-
-        // Complete! - End the connection
         console.log(`\nTotal time to index: ${time} ms`);
-      }
+      } catch (e) {}
+
+      // Complete! - End the connection
+
+      console.log('Reindexing... ');
+      await db.none('REINDEX TABLE reviews;');
+
       console.log('Closing connection... ');
       db.$pool.end();
+      process.exit(0);
     });
 };
 

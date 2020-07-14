@@ -20,13 +20,9 @@ const { swarmPsql } = require('./swarm/swarmPsql');
     skipPrep = true;
   }
 
-  if (process.argv[2] === '-slug') {
-    skipPrep = true;
-    return seedPostgres('reviews', 1, skipPrep);
-  }
-
   let dbName = process.env.DATABASE_NAME;
   let seedAmount = 100;
+  let startFrom = 0;
 
   const questions = [
     {
@@ -41,11 +37,18 @@ const { swarmPsql } = require('./swarm/swarmPsql');
       message: 'Enter the number of parent entries to create',
       default: seedAmount,
     },
+    {
+      type: 'number',
+      name: 'start',
+      message: 'Enter index to start from',
+      default: startFrom,
+    },
   ];
 
   inquirer.prompt(questions).then((answers) => {
     seedAmount = answers.entries;
     dbName = answers.database;
+    startFrom = answers.start;
     process.env.DATABASE_NAME = dbName;
 
     return inquirer
@@ -54,15 +57,13 @@ const { swarmPsql } = require('./swarm/swarmPsql');
           type: 'confirm',
           name: 'confirm',
           message: chalkPipe('orange.bold')(
-            `Seed database: '${answers.database}' with ${answers.entries} entries?`
+            `Seed database: '${answers.database}' with ${answers.entries} entries - starting with index ${answers.start}?`
           ),
         },
       ])
       .then(async (finalAnswer) => {
         if (finalAnswer.confirm)
-          await seedPostgres(dbName, seedAmount, skipPrep);
+          await seedPostgres(dbName, seedAmount, skipPrep, startFrom);
       });
   });
-
-  process.exit(0);
 })();
