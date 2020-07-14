@@ -25,7 +25,7 @@ function getNextData(t, currentChunk, chunkSize, chunks, startAmount = 0) {
     // Generate data for each chunk and push it to the array
     for (let i = 1; i <= chunkSize; i++) {
       // Get max number of reviews for the app
-      const numberOfReviews = random.int(2, 8);
+      const numberOfReviews = random.int(2, 4);
 
       for (let j = 1; j <= numberOfReviews; j++) {
         j === numberOfReviews
