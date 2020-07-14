@@ -17,7 +17,7 @@ class Review extends Component {
     console.log(this.state.id);
     if ($.get) {
       $.get({
-        url: `http://ec2-3-136-25-220.us-east-2.compute.amazonaws.com:3002/reviews/${this.state.id}`,
+        url: `http://ec2-3-128-24-213.us-east-2.compute.amazonaws.com:3002/reviews/${this.state.id}`,
       }).then((reviews) => {
         this.setState({
           reviews: reviews,

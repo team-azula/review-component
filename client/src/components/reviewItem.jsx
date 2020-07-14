@@ -37,7 +37,7 @@ class ReviewItem extends Component {
     const review = this.state.review;
     if ($.post) {
       $.post({
-        url: `http://ec2-3-136-25-220.us-east-2.compute.amazonaws.com:3002/likes/${review._id}`,
+        url: `http://ec2-3-128-24-213.us-east-2.compute.amazonaws.com:3002/likes/${review._id}`,
       }).then(() => {
         review.likes++;
         this.setState({
