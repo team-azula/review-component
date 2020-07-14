@@ -56,7 +56,7 @@ const prepareDatabase = async (dbName) => {
  * @returns {Promise<void>}
  */
 const seedPostgres = async (dbName, amount, skipPrep) => {
-  let chunkSize = 10000;
+  let chunkSize = 100;
   let chunks = Math.ceil(amount / chunkSize);
 
   // If the number of desired seed entries is less than the total chunkSize
