@@ -56,7 +56,7 @@ const prepareDatabase = async (dbName) => {
  * @returns {Promise<void>}
  */
 const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
-  let chunkSize = 10000;
+  let chunkSize = 100000;
   let chunks = Math.ceil(amount / chunkSize);
 
   // If the number of desired seed entries is less than the total chunkSize
@@ -78,7 +78,6 @@ const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
       database: dbName,
       user: process.env.PGUSER,
       password: process.env.PGPASSWORD,
-      max: 30,
     });
   } else {
     db = await prepareDatabase(dbName);
@@ -105,11 +104,11 @@ const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
 
   // Start the massive-insert transaction
   db.tx('massive-insert', (t) => {
-    const processData = (data) => {
+    const processData = async (data) => {
       if (data) {
         const insert = pgp.helpers.insert(data, cs);
         creationBar.tick();
-        return t.none(insert);
+        return t.query(insert);
       }
     };
     return t.sequence((index) =>
@@ -126,9 +125,9 @@ const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
       console.log(error);
     })
     .finally(async () => {
+      const spinner = new Spinner('Indexing item column... %s  ');
       try {
         const start = new Date().getTime();
-        const spinner = new Spinner('Indexing item column... %s  ');
         spinner.setSpinnerString('|/-\\');
         spinner.start();
         await db.none('CREATE INDEX idx_app_id ON reviews(item)');
@@ -140,12 +139,13 @@ const seedPostgres = async (dbName, amount, skipPrep, startAmount) => {
         const end = new Date().getTime();
         const time = end - start;
         console.log(`\nTotal time to index: ${time} ms`);
-      } catch (e) {}
+      } catch (e) {
+        spinner.stop();
+      }
 
       // Complete! - End the connection
-
       console.log('Reindexing... ');
-      await db.none('REINDEX TABLE reviews;');
+      // await db.none('REINDEX TABLE reviews;');
 
       console.log('Closing connection... ');
       db.$pool.end();
