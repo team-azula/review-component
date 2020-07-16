@@ -14,10 +14,17 @@ class Review extends Component {
   }
 
   componentDidMount() {
-    console.log(this.state.id);
+    let url =
+      "http://ec2-3-12-34-26.us-east-2.compute.amazonaws.com:3002/reviews/";
+
+    if (this.props.id === null) {
+      url += window.location.pathname.substr(1);
+    } else {
+      url += "/" + this.state.id;
+    }
     if ($.get) {
       $.get({
-        url: `http://ec2-3-128-24-213.us-east-2.compute.amazonaws.com:3002/reviews/${this.state.id}`,
+        url: url,
       }).then((reviews) => {
         this.setState({
           reviews: reviews,

@@ -1,9 +1,9 @@
 const knex = require('knex')({
   client: 'pg',
   connection: {
-    host: 'localhost',
-    user: 'ayers',
-    password: '',
+    host: 'ec2-3-12-34-26.us-east-2.compute.amazonaws.com',
+    user: 'postgres',
+    password: 'password',
     database: 'reviews',
   },
 });
@@ -22,13 +22,13 @@ const getNextData = require('./utils/getNextData');
       complete: '=',
       incomplete: ' ',
       width: 50,
-      total: 6000,
+      total: 200,
     }
   );
 
   try {
-    for (let i = 0; i < 10000; i++) {
-      const data = await getNextData(null, i, 1000, 10000, 0);
+    for (let i = 0; i < 200; i++) {
+      const data = await getNextData(null, i, 1000, 200, 9800000);
       await knex.batchInsert('reviews', data, data.length);
       creationBar.tick();
     }
