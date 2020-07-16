@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "seed": "cd server && npm run seed:docker",
+    "seed": "cd server && npm run seed:local",
     "start": "cd server && npm run start",
     "start:database": "npm run seed && npm run start",
     "prestart": "cd client && npm run build-prod",
