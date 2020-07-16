@@ -15,7 +15,7 @@ class Review extends Component {
 
   componentDidMount() {
     let url =
-      "http://ec2-3-12-34-26.us-east-2.compute.amazonaws.com:3002/reviews/";
+      "http://ec2-13-59-39-150.us-east-2.compute.amazonaws.com:3002/reviews/";
 
     if (this.props.id === null) {
       url += window.location.pathname.substr(1);
