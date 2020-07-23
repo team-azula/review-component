@@ -14,12 +14,17 @@ class Review extends Component {
   }
 
   componentDidMount() {
-    let url = "http://localhost:3002/reviews/";
+    let url = "/reviews/";
 
-    if (this.props.id === null) {
-      url += window.location.pathname.substr(1);
+    if (this.props.id === null || this.props.id === undefined) {
+      const newId = window.location.pathname.substr(1);
+      if (newId) {
+        url += window.location.pathname.substr(1);
+      } else {
+        url += "0";
+      }
     } else {
-      url += "/" + this.state.id;
+      url += this.state.id;
     }
     if ($.get) {
       $.get({
